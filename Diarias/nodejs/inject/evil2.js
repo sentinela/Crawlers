@@ -1,0 +1,1 @@
+document.querySelector('.dados_consulta.dados').remove();
