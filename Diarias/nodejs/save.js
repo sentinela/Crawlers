@@ -1,10 +1,13 @@
 const fs = require('fs');
 
 module.exports = function (year) {
-  const dir = `${__dirname}/data/${year}`;
-  if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
-  }
+  const baseDir = `${__dirname}/data`;
+  const dir = `${baseDir}/${year}`;
+  [baseDir, dir].forEach(d => {
+    if (!fs.existsSync(d)){
+      fs.mkdirSync(d);
+    }
+  });
   return (index, data) => {
     const fileName = `page-${index}.json`;
     const path = `${dir}/${fileName}`;
