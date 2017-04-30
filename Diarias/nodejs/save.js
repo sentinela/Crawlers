@@ -1,9 +1,10 @@
 const fs = require('fs');
 
-module.exports = function (year) {
+module.exports = function (ano, fonte) {
   const baseDir = `${__dirname}/data`;
-  const dir = `${baseDir}/${year}`;
-  [baseDir, dir].forEach(d => {
+  const anoDir = `${baseDir}/${ano}`;
+  const dir = `${anoDir}/${fonte}`;
+  [baseDir, anoDir, dir].forEach(d => {
     if (!fs.existsSync(d)){
       fs.mkdirSync(d);
     }
@@ -35,4 +36,3 @@ module.exports = function (year) {
     });
   };
 };
-

@@ -1,11 +1,40 @@
 const Nightmare = require('nightmare');
 const vo = require('vo');
-// const URL = 'https://gravatai.atende.net/?pg=transparencia#!/grupo/3/item/9/tipo/1';
-const URL = 'https://www.cmgravatai.rs.gov.br/?pg=transparencia#!/grupo/3/item/9/tipo/1';
-const YEAR = 2016;
-const save = require('./save')(YEAR);
+
+const FONTES = [
+  {
+    fonte: 'prefeitura', url: 'https://gravatai.atende.net/?pg=transparencia#!/grupo/3/item/9/tipo/1'
+  },{
+    fonte: 'camara',     url: 'https://www.cmgravatai.rs.gov.br/?pg=transparencia#!/grupo/3/item/9/tipo/1'
+  }
+];
+
+const { argv } = process;
+if (argv.length < 4) {
+  console.error("\x1b[31m", "Passe os parametros corretamente: EX: node app.js prefeitura 2016");
+  return;
+}
+
+const FONTE = argv[2];
+const ANO = argv[3];
+
+const URL = FONTES.reduce((acc, f) => (FONTE === f.fonte ? f.url : acc), '');
+
+if (!URL) {
+  console.error("\x1b[31m", "Informe");
+  console.log(FONTES.map(f => f.fonte).join(' ou '));
+  return;
+}
+
+if (ANO < 2010 || ANO > 2017) {
+  console.error("\x1b[31m", "Informe de 2010 à 2017");
+  return;
+}
+
+const save = require('./save')(ANO, FONTE);
 
 vo(run)((err, result) => {
+  console.log(result);
   if (err) throw err;
 });
 
@@ -17,7 +46,7 @@ function* run() {
   // Seleciona o ANO, de pois verifica a quandidade de páginas e linhas do ano selecionado
   const total = yield nightmare
     .goto(URL)
-    .select('select[name="loaano"]', YEAR)
+    .select('select[name="loaano"]', ANO)
     .wait('.div_botao_acao.div_botao_acao_group.div_botao_acao_button')
     .click('.div_botao_acao.div_botao_acao_group.div_botao_acao_button')
     .wait('.linha_dados.linha_normal')
@@ -73,7 +102,6 @@ function* run() {
     }
     save(indexPage, array);
     yield nightmare
-      // .inject('js', `${__dirname}/inject/removeContent.js`)
       .click('.paginadora tr td span')
       .wait(5000);
   }
